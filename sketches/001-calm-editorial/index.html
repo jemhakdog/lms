@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Computer Science · Department Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: #1a1a1a;
+    background: #fbfaf7;
+    line-height: 1.6;
+  }
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --border: #e7e3da;
+    --fg: #1a1a1a;
+    --muted: #6b6b6b;
+    --subtle: #9a9a9a;
+    --accent: #8b5a2b;
+    --accent-soft: #f5ede2;
+    --success: #4d7c4d;
+    --warning: #b8853a;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+
+  /* TOP BAR */
+  .topbar { padding: 24px 0; border-bottom: 1px solid var(--border); }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; }
+  .brand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+  .brand-tag { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'Inter', sans-serif; font-weight: 400; }
+  nav.primary { display: flex; gap: 32px; }
+  nav.primary a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 4px 0; border-bottom: 1px solid transparent; }
+  nav.primary a:hover { color: var(--fg); }
+  nav.primary a.active { color: var(--fg); border-bottom-color: var(--accent); }
+  .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--muted); }
+  .avatar-lg { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 500; font-family: 'Fraunces', serif; }
+
+  /* MASTHEAD */
+  .masthead { padding: 64px 0 48px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 16px; }
+  .masthead h1 { font-family: 'Fraunces', serif; font-size: 56px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; max-width: 800px; }
+  .masthead h1 em { font-style: italic; color: var(--accent); }
+  .masthead-sub { font-size: 17px; color: var(--muted); margin-top: 20px; max-width: 640px; line-height: 1.5; }
+  .meta-row { display: flex; gap: 40px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 13px; }
+  .meta-item .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .meta-item .value { font-family: 'Fraunces', serif; font-size: 18px; margin-top: 4px; }
+
+  /* STORY ROW */
+  .stories { display: grid; grid-template-columns: 2fr 1fr; gap: 60px; padding: 48px 0; border-top: 1px solid var(--border); }
+  .story-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent); margin-bottom: 12px; }
+  .story h2 { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 400; letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 16px; }
+  .story p { font-size: 16px; color: var(--muted); margin-bottom: 16px; line-height: 1.65; }
+  .story a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); padding-bottom: 1px; }
+
+  .side-stories { display: flex; flex-direction: column; gap: 32px; }
+  .side-story { padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .side-story:last-child { border-bottom: none; }
+  .side-story h3 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 400; margin-bottom: 6px; line-height: 1.3; }
+  .side-story .meta { font-size: 12px; color: var(--subtle); margin-bottom: 8px; }
+  .side-story p { font-size: 14px; color: var(--muted); line-height: 1.55; }
+
+  /* COURSES SECTION */
+  .section { padding: 56px 0; border-top: 1px solid var(--border); }
+  .section-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 400; letter-spacing: -0.01em; }
+  .section-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .link-all { color: var(--accent); text-decoration: none; font-size: 13px; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .course-card { padding: 28px 0; border-top: 1px solid var(--border); }
+  .course-code { font-family: 'Fraunces', serif; font-size: 14px; color: var(--accent); letter-spacing: 0.5px; }
+  .course-name { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 400; margin: 8px 0 12px; line-height: 1.25; }
+  .course-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .course-meta span { display: flex; align-items: center; gap: 4px; }
+  .course-desc { font-size: 14px; color: var(--muted); line-height: 1.55; }
+  .fill-bar { margin-top: 16px; height: 2px; background: var(--border); position: relative; border-radius: 1px; overflow: hidden; }
+  .fill-bar > div { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+  .fill-label { font-size: 11px; color: var(--subtle); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+  /* ANNOUNCEMENTS */
+  .announce-row { display: flex; gap: 0; padding: 32px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .announce { flex: 1; padding: 0 32px; border-right: 1px solid var(--border); }
+  .announce:first-child { padding-left: 0; }
+  .announce:last-child { border-right: none; padding-right: 0; }
+  .announce .date { font-size: 11px; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.8px; }
+  .announce h4 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; margin: 8px 0 8px; line-height: 1.3; }
+  .announce p { font-size: 14px; color: var(--muted); }
+
+  /* FOOTER */
+  footer { padding: 40px 0; margin-top: 40px; color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; }
+
+  /* PILL */
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; background: var(--accent-soft); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="brand">Computer Science</div>
+        <div class="brand-tag">Department of Computer Science · University of the Pacific</div>
+      </div>
+      <nav class="primary">
+        <a href="#" class="active">Overview</a>
+        <a href="#">Courses</a>
+        <a href="#">Faculty</a>
+        <a href="#">Programs</a>
+        <a href="#">Announcements</a>
+        <a href="#">Requests</a>
+      </nav>
+      <div class="topbar-right">
+        <span>Welcome, Dr. Chen</span>
+        <div class="avatar-lg">AC</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="masthead">
+    <div class="eyebrow">Department Dashboard · Fall 2026</div>
+    <h1>A clear view of the <em>term in motion</em>.</h1>
+    <p class="masthead-sub">Eighty-seven sections are running this fall across four programs. Here's how enrollment, faculty load, and student demand are tracking — and where your attention is needed.</p>
+    <div class="meta-row">
+      <div class="meta-item">
+        <div class="label">Week</div>
+        <div class="value">3 of 14</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Enrolled</div>
+        <div class="value">2,134</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Avg Section Size</div>
+        <div class="value">24.5</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Open Requests</div>
+        <div class="value">7</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Fill Rate</div>
+        <div class="value">91%</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stories">
+    <div class="story">
+      <div class="story-eyebrow">This week's focus</div>
+      <h2>Two courses have hit capacity — and three more are close behind.</h2>
+      <p>CS340 (Operating Systems) and CS220 (Computer Architecture) both crossed 95% enrollment this week, with active waitlists building. The pattern is consistent with last fall, when we ultimately opened overflow sections for CS340 in week 5.</p>
+      <p>Three other courses — CS201, CS450, and CS410 — are tracking above 85% and may need the same treatment. <a href="#">View the enrollment trend →</a></p>
+    </div>
+    <div class="side-stories">
+      <div class="side-story">
+        <h3>Add TA to CS201-04</h3>
+        <div class="meta">Service request · M. Reyes · 5h ago</div>
+        <p>Section size at 42, two above standard cap. Awaiting chair approval.</p>
+      </div>
+      <div class="side-story">
+        <h3>Room swap for CS340</h3>
+        <div class="meta">Service request · J. Park · 2h ago</div>
+        <p>Current room ENGR 110 doesn't support lab demos. Requesting ENGR 220.</p>
+      </div>
+      <div class="side-story">
+        <h3>Cross-listing proposal</h3>
+        <div class="meta">Service request · A. Chen · 1d ago</div>
+        <p>CS305 / MATH 305 cross-list for spring. Needs department sign-off before registrar deadline.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Featured courses this term</h2>
+        <div class="section-sub">A selection from 42 active offerings · <a href="#" class="link-all">view all</a></div>
+      </div>
+    </div>
+    <div class="course-grid">
+      <div class="course-card">
+        <div class="course-code">CS 101</div>
+        <div class="course-name">Introduction to Programming</div>
+        <div class="course-meta">
+          <span>6 sections</span><span>·</span>
+          <span>168 enrolled</span>
+        </div>
+        <div class="course-desc">First course in the major. Python-based, project-driven, capped at 30 per section.</div>
+        <div class="fill-bar"><div style="width: 93%"></div></div>
+        <div class="fill-label">93% of capacity</div>
+      </div>
+      <div class="course-card">
+        <div class="course-code">CS 340</div>
+        <div class="course-name">Operating Systems</div>
+        <div class="course-meta">
+          <span>2 sections</span><span>·</span>
+          <span>58 enrolled</span>
+        </div>
+        <div class="course-desc">Junior-level core. Lab-heavy, two faculty co-teaching. Currently waitlisted.</div>
+        <div class="fill-bar"><div style="width: 97%"></div></div>
+        <div class="fill-label">97% of capacity · waitlist active</div>
+      </div>
+      <div class="course-card">
+        <div class="course-code">CS 401</div>
+        <div class="course-name">Senior Capstone</div>
+        <div class="course-meta">
+          <span>1 section</span><span>·</span>
+          <span>22 enrolled</span>
+        </div>
+        <div class="course-desc">Year-long project course with industry partners. Two co-instructors, 8 teams.</div>
+        <div class="fill-bar"><div style="width: 73%"></div></div>
+        <div class="fill-label">73% of capacity</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="announce-row">
+    <div class="announce">
+      <div class="date">Posted 2 days ago</div>
+      <h4>Spring 2027 schedule planning opens Oct 14</h4>
+      <p>Draft your section proposals by Nov 1. The scheduling office has shared the new room availability matrix.</p>
+    </div>
+    <div class="announce">
+      <div class="date">Posted 5 days ago</div>
+      <h4>Faculty search — systems & security</h4>
+      <p>Two tenure-track positions. Candidate visits begin in three weeks. Full schedule posted to faculty portal.</p>
+    </div>
+    <div class="announce">
+      <div class="date">Posted 1 week ago</div>
+      <h4>New CS minor in data science</h4>
+      <p>Approved by the university senate last month. Materials and advising notes now available.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div>Department of Computer Science · University of the Pacific</div>
+    <div>Last updated 4 minutes ago</div>
+  </footer>
+</div>
+</body>
+</html>

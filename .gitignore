@@ -1,0 +1,10 @@
+.hermes/
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+.DS_Store

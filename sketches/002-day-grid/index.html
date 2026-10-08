@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Faculty Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --rail: #14222e;
+    --rail-2: #1b2d3c;
+    --rail-text: #c8d4dc;
+    --rail-dim: #6b7e8c;
+    --bg: #f3f6f5;
+    --surface: #ffffff;
+    --ink: #14222e;
+    --muted: #5b6a73;
+    --line: #e2e7e5;
+    --accent: #0e7c66;
+    --accent-soft: #d3ebde;
+    --warn: #b3511a;
+    --warn-soft: #f5e1d1;
+    --ok: #2c7a4d;
+    --pinned: #d6efe2;
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 13.5px; line-height: 1.45;
+    min-height: 100vh;
+  }
+
+  .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  aside.rail { background: var(--rail); color: var(--rail-text); padding: 18px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .rail .brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+  .rail .brand .mark { width: 26px; height: 26px; border-radius: 6px; background: var(--accent); display: grid; place-items: center; font-weight: 700; color: #fff; font-size: 13px; }
+  .rail .brand .name { color: #fff; font-weight: 600; font-size: 13.5px; }
+  .rail .brand small { color: var(--rail-dim); font-size: 10.5px; letter-spacing: 1.1px; text-transform: uppercase; display: block; }
+
+  .rail .section { font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--rail-dim); padding: 14px 12px 6px; }
+  .rail a { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--rail-text); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+  .rail a:hover { background: var(--rail-2); }
+  .rail a.active { background: var(--rail-2); color: #fff; }
+  .rail a .count { background: var(--accent); color: #fff; font-size: 10.5px; padding: 1px 7px; border-radius: 999px; font-weight: 600; }
+  .rail a .count.warn { background: var(--warn); }
+  .rail a .count.dim { background: var(--rail-2); color: var(--rail-dim); }
+
+  .rail .me { margin-top: auto; padding: 12px; border-top: 1px solid var(--rail-2); display: flex; align-items: center; gap: 10px; }
+  .rail .me .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+  .rail .me .name { color: #fff; font-size: 12.5px; }
+  .rail .me .role { color: var(--rail-dim); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; }
+
+  main { padding: 18px 24px 40px; overflow: hidden; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .crumbs { color: var(--muted); font-size: 12px; }
+  .crumbs strong { color: var(--ink); font-weight: 600; }
+  .search { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; min-width: 280px; font-size: 12.5px; color: var(--muted); }
+  .search kbd { background: var(--bg); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; font-size: 10.5px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 360px; gap: 16px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .panel h2 { font-size: 12.5px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--ink); display: flex; align-items: center; justify-content: space-between; }
+  .panel h2 .pill { font-size: 10.5px; background: var(--bg); color: var(--muted); padding: 2px 8px; border-radius: 999px; text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .panel h2 a { color: var(--accent); text-decoration: none; font-size: 11.5px; font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+  .day-head { display: flex; align-items: baseline; gap: 14px; padding: 14px 16px 0; }
+  .day-head .h { font-size: 20px; font-weight: 600; }
+  .day-head .d { color: var(--muted); font-size: 12.5px; }
+  .day-nav { margin-left: auto; display: flex; gap: 4px; }
+  .day-nav button { background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 3px 8px; font-size: 11.5px; cursor: pointer; color: var(--muted); }
+  .day-nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .timeline { position: relative; padding: 12px 0 16px; }
+  .hour { display: grid; grid-template-columns: 60px 1fr; gap: 12px; min-height: 44px; padding: 4px 16px; }
+  .hour .h-lbl { color: var(--muted); font-size: 11px; text-align: right; padding-top: 4px; font-variant-numeric: tabular-nums; }
+  .hour .h-slot { border-top: 1px solid var(--line); }
+  .slot {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 8px 10px; font-size: 12px; margin: -1px 0 4px; position: relative;
+  }
+  .slot.class { background: var(--accent-soft); border-color: transparent; }
+  .slot.class .title { font-weight: 600; color: var(--ink); }
+  .slot .meta { color: var(--muted); font-size: 11px; margin-top: 1px; }
+  .slot .loc { display: inline-block; margin-left: 4px; padding: 1px 6px; background: rgba(20,34,46,.06); border-radius: 3px; font-size: 10.5px; }
+  .slot.now { box-shadow: 0 0 0 2px var(--accent); }
+  .slot .now-marker { position: absolute; left: -10px; top: 10px; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 4px var(--accent-soft); }
+
+  .right .panel + .panel { margin-top: 16px; }
+  .queue { padding: 4px 0; }
+  .q-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--line); align-items: center; }
+  .q-item:first-of-type { border-top: 0; }
+  .q-item .ttl { font-size: 12.5px; font-weight: 500; }
+  .q-item .sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .q-item .pct { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .q-item .pct .bar { display: inline-block; width: 50px; height: 4px; background: var(--bg); border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+  .q-item .pct .bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+  .q-item .pct .bar i.warn { background: var(--warn); }
+  .q-item button { background: var(--ink); color: #fff; border: 0; border-radius: 4px; padding: 5px 10px; font-size: 11.5px; cursor: pointer; }
+  .q-item button.outline { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+
+  .inbox { padding: 0; }
+  .msg { padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12.5px; }
+  .msg:first-of-type { border-top: 0; }
+  .msg .from { font-weight: 600; }
+  .msg .preview { color: var(--muted); margin-top: 1px; font-size: 12px; }
+  .msg .when { color: var(--muted); font-size: 11px; float: right; }
+  .msg.unread { background: #fbfdfc; }
+  .msg.unread .from::after { content: ""; display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-left: 6px; vertical-align: middle; }
+
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .stat .n { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+  .stat .n.warn { color: var(--warn); }
+  .stat .d { font-size: 11px; color: var(--ok); margin-top: 4px; }
+
+  @media (max-width: 980px) {
+    .grid { grid-template-columns: 1fr; }
+    .strip { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .shell { grid-template-columns: 1fr; }
+    aside.rail { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="rail">
+    <div class="brand">
+      <div class="mark">H</div>
+      <div>
+        <div class="name">Halton</div>
+        <small>Faculty Portal</small>
+      </div>
+    </div>
+
+    <div class="section">Today</div>
+    <a href="#" class="active">Schedule <span class="count">2</span></a>
+    <a href="#">Grading queue <span class="count warn">3</span></a>
+    <a href="#">Inbox <span class="count">7</span></a>
+    <a href="#">Attendance</a>
+
+    <div class="section">Teaching</div>
+    <a href="#">Classes <span class="count dim">4</span></a>
+    <a href="#">Roster</a>
+    <a href="#">Assignments</a>
+    <a href="#">Gradebook</a>
+
+    <div class="section">Department</div>
+    <a href="#">Curriculum</a>
+    <a href="#">Committees</a>
+    <a href="#">Reports</a>
+    <a href="#">Travel & expenses</a>
+
+    <div class="me">
+      <div class="avatar">IO</div>
+      <div>
+        <div class="name">Imani Okafor</div>
+        <div class="role">Faculty</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <div class="topbar">
+      <div class="crumbs"><strong>Today</strong> · Thursday, 27 August</div>
+      <div class="search">Search courses, students, assignments… <kbd>⌘K</kbd></div>
+    </div>
+
+    <div class="strip">
+      <div class="stat"><div class="n">2</div><div class="l">Classes today</div><div class="d">1:00 PM & 3:30 PM</div></div>
+      <div class="stat"><div class="n warn">18</div><div class="l">Ungraded submissions</div><div class="d" style="color:var(--warn)">+6 since yesterday</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">Unread messages</div><div class="d">1 from a student</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">Office hours booked</div><div class="d">Tomorrow, 2–4 PM</div></div>
+    </div>
+
+    <div class="grid">
+
+      <section class="panel">
+        <h2>Schedule <span class="pill">Thu 27 Aug</span></h2>
+        <div class="day-head">
+          <div class="h">Today</div>
+          <div class="d">Week 3 of term</div>
+          <div class="day-nav">
+            <button>Wed</button>
+            <button class="active">Thu</button>
+            <button>Fri</button>
+          </div>
+        </div>
+        <div class="timeline">
+
+          <div class="hour">
+            <div class="h-lbl">9:00</div>
+            <div class="h-slot">
+              <div class="slot">
+                <div class="title">Office hours</div>
+                <div class="meta">Drop-in · Brennan Hall 312</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">10:00</div>
+            <div class="h-slot"></div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">11:00</div>
+            <div class="h-slot">
+              <div class="slot">
+                <div class="title">Department meeting</div>
+                <div class="meta">Curriculum review · <span class="loc">Provost's conference room</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">12:00</div>
+            <div class="h-slot"></div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">1:00</div>
+            <div class="h-slot">
+              <div class="slot class">
+                <div class="now-marker"></div>
+                <div class="title">LING 214 · Syntax I <span class="loc">Brennan 204</span></div>
+                <div class="meta">22 enrolled · Lecture · Returning PS 2 today</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">2:00</div>
+            <div class="h-slot"></div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">3:00</div>
+            <div class="h-slot">
+              <div class="slot class">
+                <div class="title">LING 301 · Sociolinguistics <span class="loc">Brennan 118</span></div>
+                <div class="meta">18 enrolled · Seminar · Fieldwork debrief</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">4:00</div>
+            <div class="h-slot"></div>
+          </div>
+
+          <div class="hour">
+            <div class="h-lbl">5:00</div>
+            <div class="h-slot">
+              <div class="slot">
+                <div class="title">Office hours</div>
+                <div class="meta">By appointment · Brennan 312</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="right">
+
+        <section class="panel">
+          <h2>Grading queue <a href="#">View all</a></h2>
+          <div class="queue">
+            <div class="q-item">
+              <div>
+                <div class="ttl">LING 214 · Problem Set 2</div>
+                <div class="sub">18 of 22 submitted · 0 graded</div>
+              </div>
+              <div class="pct"><span class="bar"><i style="width:0%"></i></span>0%</div>
+            </div>
+            <div class="q-item">
+              <div>
+                <div class="ttl">LING 301 · Fieldwork notes</div>
+                <div class="sub">12 of 18 submitted · 5 graded</div>
+              </div>
+              <div class="pct"><span class="bar"><i class="warn" style="width:42%"></i></span>42%</div>
+            </div>
+            <div class="q-item">
+              <div>
+                <div class="ttl">LING 480 · Thesis chapter draft</div>
+                <div class="sub">3 of 6 submitted · 1 graded</div>
+              </div>
+              <div class="pct"><span class="bar"><i class="warn" style="width:33%"></i></span>33%</div>
+            </div>
+            <div class="q-item">
+              <div>
+                <div class="ttl">LING 214 · Reading response 4</div>
+                <div class="sub">22 of 22 submitted · 18 graded</div>
+              </div>
+              <div class="pct"><span class="bar"><i style="width:82%"></i></span>82%</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel inbox">
+          <h2>Inbox <a href="#">Open inbox</a></h2>
+          <div class="msg unread">
+            <span class="when">6h</span>
+            <div class="from">Marisol Tan</div>
+            <div class="preview">Quick question — does the midterm cover chapter 6, or stop at 5?</div>
+          </div>
+          <div class="msg unread">
+            <span class="when">yesterday</span>
+            <div class="from">Dr. Halloran</div>
+            <div class="preview">Re: Friday seminar coverage — happy to take it, just confirm.</div>
+          </div>
+          <div class="msg">
+            <span class="when">2d</span>
+            <div class="from">Curriculum committee</div>
+            <div class="preview">Agenda for next Tuesday attached. Please review items 3 and 5.</div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>

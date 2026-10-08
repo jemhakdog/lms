@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Faculty — Today</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f1efe8;
+    --surface: #ffffff;
+    --ink: #1f2a2c;
+    --muted: #6b7470;
+    --line: #e3dfd4;
+    --accent: #0f4a44;
+    --accent-soft: #d6e2dd;
+    --warn: #a8551c;
+    --warn-soft: #f5e6d6;
+    --ok: #2f6b4a;
+    --ok-soft: #dceadf;
+    --radius: 14px;
+    --shadow: 0 1px 0 rgba(31,42,44,.04), 0 8px 24px -12px rgba(31,42,44,.10);
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .ui { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 40px; border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--accent); color: #f1efe8;
+    display: grid; place-items: center; font-family: -apple-system, sans-serif;
+    font-weight: 600; font-size: 14px; letter-spacing: 0.5px;
+  }
+  .brand-name { font-size: 15px; letter-spacing: 0.4px; }
+  .brand-name small { color: var(--muted); display: block; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; }
+  .topnav { display: flex; gap: 28px; font-family: -apple-system, sans-serif; font-size: 14px; }
+  .topnav a { color: var(--muted); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+  .topnav a.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .who { display: flex; align-items: center; gap: 12px; font-family: -apple-system, sans-serif; font-size: 13px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 600; }
+  .who small { color: var(--muted); display: block; font-size: 11px; }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 56px 40px 80px; }
+  .greeting { margin-bottom: 36px; }
+  .greeting .date { font-family: -apple-system, sans-serif; color: var(--muted); font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 8px; }
+  .greeting h1 { font-size: 40px; font-weight: 400; letter-spacing: -0.5px; line-height: 1.15; }
+  .greeting h1 em { color: var(--accent); font-style: italic; }
+  .greeting p { color: var(--muted); margin-top: 10px; max-width: 540px; }
+
+  .summary { display: flex; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); margin-bottom: 40px; overflow: hidden; }
+  .summary > div { flex: 1; padding: 18px 22px; border-right: 1px solid var(--line); font-family: -apple-system, sans-serif; }
+  .summary > div:last-child { border-right: 0; }
+  .summary .num { font-size: 22px; font-weight: 600; }
+  .summary .num.warn { color: var(--warn); }
+  .summary .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  .stack-title { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
+  .stack-title h2 { font-size: 22px; font-weight: 400; }
+  .stack-title .meta { font-family: -apple-system, sans-serif; color: var(--muted); font-size: 13px; }
+
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px 26px;
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 22px; align-items: center;
+    box-shadow: var(--shadow);
+  }
+  .card .ic {
+    width: 56px; height: 56px; border-radius: 12px;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; font-family: -apple-system, sans-serif; font-size: 22px;
+  }
+  .card.warn .ic { background: var(--warn-soft); color: var(--warn); }
+  .card.ok .ic { background: var(--ok-soft); color: var(--ok); }
+  .card .body h3 { font-family: -apple-system, sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card .body p { font-family: -apple-system, sans-serif; font-size: 13.5px; color: var(--muted); }
+  .card .body .tags { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { font-family: -apple-system, sans-serif; font-size: 11px; padding: 3px 9px; border-radius: 999px; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+  .tag.course { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .tag.due { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+  .card .cta {
+    font-family: -apple-system, sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--accent); background: transparent; border: 1px solid var(--accent);
+    padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  }
+  .card .cta.solid { background: var(--accent); color: #f1efe8; }
+  .card .cta:hover { background: var(--accent); color: #f1efe8; }
+
+  .after-list {
+    margin-top: 36px; padding: 22px 26px; background: transparent;
+    border-top: 1px dashed var(--line);
+  }
+  .after-list h4 { font-family: -apple-system, sans-serif; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { font-family: -apple-system, sans-serif; font-size: 13px; padding: 8px 14px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); cursor: pointer; }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  footer { text-align: center; color: var(--muted); font-family: -apple-system, sans-serif; font-size: 12px; padding: 40px 0 0; }
+
+  @media (max-width: 720px) {
+    .page { padding: 32px 20px 60px; }
+    .topbar { padding: 16px 20px; }
+    .topnav { display: none; }
+    .greeting h1 { font-size: 30px; }
+    .summary { flex-direction: column; }
+    .summary > div { border-right: 0; border-bottom: 1px solid var(--line); }
+    .summary > div:last-child { border-bottom: 0; }
+    .card { grid-template-columns: 44px 1fr; }
+    .card .cta { grid-column: 1 / -1; justify-self: stretch; text-align: center; }
+    .card .ic { width: 44px; height: 44px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">H</div>
+    <div class="brand-name">Halton University<small>Faculty portal</small></div>
+  </div>
+  <nav class="topnav">
+    <a href="#" class="active">Today</a>
+    <a href="#">Classes</a>
+    <a href="#">Gradebook</a>
+    <a href="#">Roster</a>
+    <a href="#">Inbox</a>
+  </nav>
+  <div class="who">
+    <div>
+      Dr. Imani Okafor<small>Department of Linguistics</small>
+    </div>
+    <div class="avatar">IO</div>
+  </div>
+</header>
+
+<main class="page">
+
+  <section class="greeting">
+    <div class="date">Thursday, 27 August 2026 · Week 3 of term</div>
+    <h1>Good afternoon, Imani. <em>Three things</em> want your attention.</h1>
+    <p>Skim the stack below in order. Nothing else in the portal needs you today.</p>
+  </section>
+
+  <section class="summary">
+    <div><div class="num warn">3</div><div class="lbl">Items to review</div></div>
+    <div><div class="num">2</div><div class="lbl">Classes today</div></div>
+    <div><div class="num">18</div><div class="lbl">Ungraded submissions</div></div>
+    <div><div class="num">1</div><div class="lbl">Student question</div></div>
+  </section>
+
+  <section>
+    <div class="stack-title">
+      <h2>Your stack, in priority order</h2>
+      <div class="meta">Estimated time: ~35 minutes</div>
+    </div>
+
+    <div class="stack">
+
+      <article class="card warn">
+        <div class="ic">!</div>
+        <div class="body">
+          <h3>Grade the Problem Set 2 submissions</h3>
+          <p>Eighteen students turned in Problem Set 2 by 11:59 last night. Two have asked about the deadline extension you mentioned in class.</p>
+          <div class="tags">
+            <span class="tag course">LING 214 · Syntax I</span>
+            <span class="tag due">Due to return Friday</span>
+          </div>
+        </div>
+        <button class="cta solid">Open queue</button>
+      </article>
+
+      <article class="card">
+        <div class="ic">@</div>
+        <div class="body">
+          <h3>Reply to Marisol Tan's question about the midterm</h3>
+          <p>She's asking whether the midterm covers chapter 6 or stops at chapter 5. Two classmates have already replied with conflicting answers in the class channel.</p>
+          <div class="tags">
+            <span class="tag course">LING 214 · Syntax I</span>
+            <span class="tag">Waiting 6 hours</span>
+          </div>
+        </div>
+        <button class="cta">Reply</button>
+      </article>
+
+      <article class="card ok">
+        <div class="ic">✓</div>
+        <div class="body">
+          <h3>Confirm tomorrow's guest lecture swap</h3>
+          <p>Dr. Halloran agreed to cover your Friday seminar so you can attend the Faculty Senate meeting. Just needs your confirmation.</p>
+          <div class="tags">
+            <span class="tag course">LING 301 · Sociolinguistics</span>
+            <span class="tag">Takes 30 seconds</span>
+          </div>
+        </div>
+        <button class="cta">Confirm</button>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="after-list">
+    <h4>After the stack</h4>
+    <div class="chips">
+      <button class="chip">View full gradebook</button>
+      <button class="chip">Today's class notes</button>
+      <button class="chip">Office hours sign-up</button>
+      <button class="chip">Curriculum committee agenda</button>
+      <button class="chip">Travel reimbursement status</button>
+    </div>
+  </section>
+
+  <footer>Halton University · Faculty portal · v0.4 prototype</footer>
+
+</main>
+
+</body>
+</html>

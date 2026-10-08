@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Faculty — Cohort View</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --paper: #f6f1e7;
+    --paper-2: #ede5d4;
+    --surface: #ffffff;
+    --ink: #2a2620;
+    --ink-soft: #4a423a;
+    --muted: #80766a;
+    --line: #ddd2bb;
+    --line-strong: #c8bba0;
+    --accent: #b34a25;
+    --accent-soft: #f0d9c6;
+    --teal: #1f5d56;
+    --teal-soft: #d0e1dc;
+    --gold: #b08a1e;
+    --gold-soft: #ecdfb8;
+    --rose: #a23b48;
+    --rose-soft: #f1d4d8;
+  }
+  html, body { background: var(--paper); color: var(--ink); }
+  body {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .ui { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 44px; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .crest {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    display: grid; place-items: center;
+    font-family: -apple-system, sans-serif; font-weight: 700; font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .brand-text { font-size: 16px; font-weight: 600; }
+  .brand-text small { display: block; font-family: -apple-system, sans-serif; color: var(--muted); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 500; }
+  nav { display: flex; gap: 26px; font-family: -apple-system, sans-serif; font-size: 13.5px; }
+  nav a { color: var(--ink-soft); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+  nav a.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .who { display: flex; align-items: center; gap: 12px; font-family: -apple-system, sans-serif; font-size: 13px; }
+  .who small { color: var(--muted); display: block; font-size: 11px; }
+  .who .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; }
+
+  main { max-width: 1240px; margin: 0 auto; padding: 40px 44px 80px; }
+
+  .lead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 18px; }
+  .lead h1 { font-size: 36px; font-weight: 400; letter-spacing: -0.4px; }
+  .lead h1 em { color: var(--accent); font-style: italic; }
+  .lead .sub { color: var(--muted); font-family: -apple-system, sans-serif; font-size: 13px; margin-top: 4px; }
+  .filterbar { display: flex; gap: 8px; font-family: -apple-system, sans-serif; font-size: 12.5px; }
+  .filterbar select, .filterbar button {
+    background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+    border-radius: 6px; padding: 7px 12px; font-family: inherit; font-size: inherit; cursor: pointer;
+  }
+  .filterbar .primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 22px; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 24px 26px;
+  }
+  .panel + .panel { margin-top: 22px; }
+  .panel h2 { font-family: -apple-system, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .panel h3 { font-size: 22px; font-weight: 400; margin-bottom: 16px; letter-spacing: -0.2px; }
+
+  .courses { display: flex; flex-direction: column; gap: 14px; }
+  .course {
+    border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px;
+    display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+    background: var(--paper);
+  }
+  .course.active { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 1px var(--accent); }
+  .course .name { font-family: -apple-system, sans-serif; font-weight: 600; font-size: 14.5px; }
+  .course .name small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .course .stats { display: flex; gap: 18px; margin-top: 10px; font-family: -apple-system, sans-serif; font-size: 12px; color: var(--ink-soft); }
+  .course .stats span b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .course .right { text-align: right; font-family: -apple-system, sans-serif; }
+  .course .right .g { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .course .right .g small { font-size: 12px; font-weight: 400; color: var(--muted); }
+  .course .right .trend { font-size: 11.5px; color: var(--teal); margin-top: 2px; }
+  .course .right .trend.down { color: var(--rose); }
+
+  .roster-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .roster-head .seg { display: flex; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 2px; font-family: -apple-system, sans-serif; font-size: 12px; }
+  .roster-head .seg button { background: transparent; border: 0; padding: 4px 10px; border-radius: 4px; cursor: pointer; color: var(--ink-soft); }
+  .roster-head .seg button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+
+  .roster { display: flex; flex-direction: column; }
+  .student {
+    display: grid; grid-template-columns: 28px 1fr 70px 60px 28px; gap: 12px;
+    align-items: center; padding: 11px 0; border-top: 1px solid var(--line);
+    font-family: -apple-system, sans-serif; font-size: 13px;
+  }
+  .student:first-child { border-top: 0; }
+  .student .who { display: flex; align-items: center; gap: 10px; }
+  .student .pic { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 10.5px; font-weight: 600; color: #fff; }
+  .student .nm { font-weight: 500; }
+  .student .nm small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
+  .student .bar { height: 6px; background: var(--paper-2); border-radius: 3px; overflow: hidden; }
+  .student .bar i { display: block; height: 100%; border-radius: 3px; }
+  .student .grade { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .student .flag { text-align: center; font-size: 14px; }
+  .flag-warn { color: var(--rose); }
+  .flag-ok { color: var(--teal); }
+  .flag-watch { color: var(--gold); }
+
+  .today-list { font-family: -apple-system, sans-serif; font-size: 13.5px; }
+  .today-item { display: grid; grid-template-columns: 56px 1fr; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .today-item:first-of-type { border-top: 0; }
+  .today-item .time { color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
+  .today-item .what b { display: block; font-weight: 600; }
+  .today-item .what span { color: var(--muted); font-size: 12.5px; }
+
+  .legend { display: flex; gap: 16px; font-family: -apple-system, sans-serif; font-size: 11.5px; color: var(--muted); margin-top: 12px; }
+  .legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  .legend .thriving::before { background: var(--teal); }
+  .legend .watch::before { background: var(--gold); }
+  .legend .risk::before { background: var(--rose); }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    .lead h1 { font-size: 28px; }
+  }
+  @media (max-width: 600px) {
+    main { padding: 24px 18px 60px; }
+    header { padding: 16px 18px; }
+    .student { grid-template-columns: 24px 1fr 50px 24px; }
+    .student .bar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="crest">H</div>
+    <div class="brand-text">Halton University<small>Faculty · Cohort view</small></div>
+  </div>
+  <nav>
+    <a href="#" class="active">Students</a>
+    <a href="#">Courses</a>
+    <a href="#">Assignments</a>
+    <a href="#">Schedule</a>
+    <a href="#">Inbox</a>
+  </nav>
+  <div class="who">
+    <div>Dr. Imani Okafor<small>Linguistics</small></div>
+    <div class="avatar">IO</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="lead">
+    <div>
+      <h1>This week, your <em>students</em> are mostly <em>thriving</em>.</h1>
+      <div class="sub">Term-to-date, 86 students across 4 courses · 3 students flagged for follow-up</div>
+    </div>
+    <div class="filterbar">
+      <select><option>This term</option><option>Last term</option><option>All time</option></select>
+      <button class="primary">Export report</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <div>
+
+      <section class="panel">
+        <h2>Course snapshot</h2>
+        <h3>Four courses, 86 students</h3>
+        <div class="courses">
+
+          <div class="course active">
+            <div>
+              <div class="name">LING 214 · Syntax I<small>M/W/F 1:00 PM · 22 enrolled</small></div>
+              <div class="stats">
+                <span><b>78%</b> on-track</span>
+                <span><b>3</b> missing work</span>
+                <span><b>2</b> flagged</span>
+              </div>
+            </div>
+            <div class="right">
+              <div class="g">B+<small> avg</small></div>
+              <div class="trend">+4.2 since midterm</div>
+            </div>
+          </div>
+
+          <div class="course">
+            <div>
+              <div class="name">LING 301 · Sociolinguistics<small>T/Th 3:30 PM · 18 enrolled</small></div>
+              <div class="stats">
+                <span><b>89%</b> on-track</span>
+                <span><b>0</b> missing work</span>
+                <span><b>0</b> flagged</span>
+              </div>
+            </div>
+            <div class="right">
+              <div class="g">A−<small> avg</small></div>
+              <div class="trend">+1.1 since midterm</div>
+            </div>
+          </div>
+
+          <div class="course">
+            <div>
+              <div class="name">LING 480 · Senior Thesis<small>By appointment · 6 enrolled</small></div>
+              <div class="stats">
+                <span><b>50%</b> on-track</span>
+                <span><b>2</b> missing work</span>
+                <span><b>1</b> flagged</span>
+              </div>
+            </div>
+            <div class="right">
+              <div class="g">B<small> avg</small></div>
+              <div class="trend down">−0.8 since midterm</div>
+            </div>
+          </div>
+
+          <div class="course">
+            <div>
+              <div class="name">LING 510 · Phonology II<small>Th 6:00 PM · 40 enrolled</small></div>
+              <div class="stats">
+                <span><b>72%</b> on-track</span>
+                <span><b>7</b> missing work</span>
+                <span><b>0</b> flagged</span>
+              </div>
+            </div>
+            <div class="right">
+              <div class="g">B<small> avg</small></div>
+              <div class="trend down">−1.3 since midterm</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Your day</h2>
+        <h3>Thursday, 27 August</h3>
+        <div class="today-list">
+          <div class="today-item"><div class="time">9:00</div><div class="what"><b>Office hours</b><span>Drop-in · Brennan 312</span></div></div>
+          <div class="today-item"><div class="time">11:00</div><div class="what"><b>Department meeting</b><span>Curriculum review · Provost's conference room</span></div></div>
+          <div class="today-item"><div class="time">1:00</div><div class="what"><b>LING 214 · Syntax I</b><span>Returning PS 2 · Brennan 204</span></div></div>
+          <div class="today-item"><div class="time">3:30</div><div class="what"><b>LING 301 · Sociolinguistics</b><span>Fieldwork debrief · Brennan 118</span></div></div>
+          <div class="today-item"><div class="time">5:00</div><div class="what"><b>Office hours</b><span>By appointment · Brennan 312</span></div></div>
+        </div>
+      </section>
+
+    </div>
+
+    <div>
+
+      <section class="panel">
+        <h2>Students to know about · LING 214</h2>
+        <h3>3 of 22 need a check-in</h3>
+        <div class="roster-head">
+          <div style="color:var(--muted); font-family: -apple-system, sans-serif; font-size:12px;">Sorted by engagement</div>
+          <div class="seg">
+            <button>All</button>
+            <button class="on">Flagged</button>
+            <button>Below C</button>
+          </div>
+        </div>
+
+        <div class="roster">
+
+          <div class="student">
+            <div class="who">
+              <div class="pic" style="background:var(--rose)">DR</div>
+              <div class="nm">Devon Reyes-Calder<small>3 missed assignments · last seen 6 days</small></div>
+            </div>
+            <div class="bar"><i style="width:38%; background:var(--rose)"></i></div>
+            <div class="grade" style="color:var(--rose)">C−</div>
+            <div class="flag flag-warn" title="At risk">●</div>
+          </div>
+
+          <div class="student">
+            <div class="who">
+              <div class="pic" style="background:var(--gold)">SK</div>
+              <div class="nm">Sana Khalid<small>1 missed quiz · trending down</small></div>
+            </div>
+            <div class="bar"><i style="width:61%; background:var(--gold)"></i></div>
+            <div class="grade" style="color:var(--gold)">C+</div>
+            <div class="flag flag-watch" title="Watch">●</div>
+          </div>
+
+          <div class="student">
+            <div class="who">
+              <div class="pic" style="background:var(--rose)">JW</div>
+              <div class="nm">Jonas Wenger<small>Stopped attending 12 Aug</small></div>
+            </div>
+            <div class="bar"><i style="width:24%; background:var(--rose)"></i></div>
+            <div class="grade" style="color:var(--rose)">D</div>
+            <div class="flag flag-warn" title="At risk">●</div>
+          </div>
+
+          <div class="student">
+            <div class="who">
+              <div class="pic" style="background:var(--teal)">MT</div>
+              <div class="nm">Marisol Tan<small>Strong · asked a question yesterday</small></div>
+            </div>
+            <div class="bar"><i style="width:92%; background:var(--teal)"></i></div>
+            <div class="grade" style="color:var(--teal)">A</div>
+            <div class="flag flag-ok" title="Thriving">●</div>
+          </div>
+
+          <div class="student">
+            <div class="who">
+              <div class="pic" style="background:var(--teal)">EP</div>
+              <div class="nm">Eliana Park<small>Steady improvement all term</small></div>
+            </div>
+            <div class="bar"><i style="width:88%; background:var(--teal)"></i></div>
+            <div class="grade" style="color:var(--teal)">A−</div>
+            <div class="flag flag-ok" title="Thriving">●</div>
+          </div>
+
+          <div class="student">
+            <div class="who">
+              <div class="pic" style="background:var(--teal)">TO</div>
+              <div class="nm">Tomás Oduya<small>Perfect attendance · strong participation</small></div>
+            </div>
+            <div class="bar"><i style="width:95%; background:var(--teal)"></i></div>
+            <div class="grade" style="color:var(--teal)">A</div>
+            <div class="flag flag-ok" title="Thriving">●</div>
+          </div>
+
+        </div>
+        <div class="legend">
+          <span class="thriving">Thriving</span>
+          <span class="watch">Watch</span>
+          <span class="risk">At risk</span>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>

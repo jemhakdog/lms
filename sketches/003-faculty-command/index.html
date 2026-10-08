@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Northstar — Faculty Command</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f1714;color:#d8e2dd;font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.app{min-height:100vh;display:grid;grid-template-columns:220px 1fr}
+
+/* dark sidebar */
+.side{background:#0a1311;border-right:1px solid #1a2622;padding:18px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:9px;font-weight:750;letter-spacing:-.02em;color:#fff}
+.mark{width:28px;height:28px;border-radius:8px;background:#2dd4a4;color:#0a1311;display:grid;place-items:center;font-size:14px;font-weight:800}
+.nav small{text-transform:uppercase;letter-spacing:.12em;color:#4d615a;font-size:9px;font-weight:800;padding:0 8px;margin:8px 0 4px;display:block}
+.nav a{padding:7px 9px;border-radius:7px;color:#a7b9b2;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:550}
+.nav a:hover{background:#15201d;color:#fff}
+.nav a.active{background:#2dd4a418;color:#2dd4a4}
+.nav a .num{margin-left:auto;font-size:10px;background:#2dd4a420;color:#2dd4a4;padding:2px 6px;border-radius:4px;font-weight:700;font-variant-numeric:tabular-nums}
+.profile{margin-top:auto;display:flex;align-items:center;gap:9px;padding:8px;border-radius:8px;background:#0e1a17;border:1px solid #1a2622}
+.avatar{width:28px;height:28px;border-radius:50%;background:#2dd4a4;color:#0a1311;display:grid;place-items:center;font-weight:800;font-size:11px}
+.profile small{display:block;color:#5c766e;font-size:10px}
+
+/* main dense grid */
+main{padding:18px 22px 40px}
+.bar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.bar h1{margin:0;font-size:18px;letter-spacing:-.01em;color:#fff;font-weight:700}
+.bar .sub{color:#5c766e;font-size:12px}
+.bar .spacer{flex:1}
+.crumb{font-size:11px;color:#5c766e;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.kbd{border:1px solid #1a2622;background:#0a1311;border-radius:5px;padding:3px 7px;font-size:11px;color:#7a8e87;font-family:ui-monospace,monospace}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
+.kpi{background:#0a1311;border:1px solid #1a2622;border-radius:10px;padding:12px 14px;position:relative;overflow:hidden}
+.kpi .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#5c766e;font-weight:700}
+.kpi .val{font-size:22px;font-weight:750;letter-spacing:-.02em;color:#fff;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .val .unit{font-size:11px;color:#5c766e;margin-left:3px;font-weight:500}
+.kpi .delta{font-size:11px;font-weight:700;color:#2dd4a4}
+.kpi .delta.neg{color:#ff7a6b}
+.kpi .spark{position:absolute;right:10px;bottom:8px;opacity:.5}
+.kpi.alert{background:linear-gradient(180deg,#3a1814 0,#0a1311 100%);border-color:#5a2620}
+.kpi.alert .val{color:#ff9a8b}
+.kpi.alert .lbl{color:#ff9a8b}
+
+/* main work area = 12-col grid */
+.work{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.panel{background:#0a1311;border:1px solid #1a2622;border-radius:12px;overflow:hidden}
+.panel-head{padding:12px 14px;border-bottom:1px solid #1a2622;display:flex;align-items:center;gap:10px}
+.panel-head h3{margin:0;font-size:13px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.panel-head .tab{margin-left:auto;display:flex;gap:2px;background:#0f1714;padding:2px;border-radius:6px;border:1px solid #1a2622}
+.panel-head .tab button{background:0;border:0;padding:4px 9px;border-radius:4px;color:#7a8e87;font-size:11px;font-weight:600}
+.panel-head .tab button.on{background:#1a2622;color:#fff}
+.panel-head .act{font-size:11px;color:#2dd4a4;font-weight:700}
+
+/* queue table */
+.queue{width:100%;border-collapse:collapse}
+.queue th{text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5c766e;font-weight:700;padding:9px 14px;background:#0f1714;border-bottom:1px solid #1a2622;position:sticky;top:0}
+.queue td{padding:10px 14px;border-bottom:1px solid #15201d;font-size:12.5px;color:#cfd9d4;vertical-align:middle}
+.queue tr:hover td{background:#0f1d19}
+.queue tr:last-child td{border-bottom:0}
+.queue .pri{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.pri.hi{background:#ff7a6b;box-shadow:0 0 0 3px #ff7a6b22}
+.pri.mid{background:#f5b941}
+.pri.low{background:#2dd4a4}
+.queue .course{font-weight:700;color:#fff}
+.queue .meta{color:#5c766e;font-size:11px}
+.queue .count{font-variant-numeric:tabular-nums;color:#fff;font-weight:700;text-align:right}
+.queue .due{color:#cfd9d4;font-variant-numeric:tabular-nums}
+.queue .due.over{color:#ff9a8b;font-weight:700}
+.queue button{background:#1a2622;border:1px solid #243430;color:#cfd9d4;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.queue button.primary{background:#2dd4a4;color:#0a1311;border-color:#2dd4a4}
+
+/* right column */
+.stack{display:flex;flex-direction:column;gap:14px}
+
+/* heat grid: students × assignments */
+.heat{padding:8px 14px 14px}
+.heat-row{display:grid;grid-template-columns:90px 1fr 60px;gap:8px;align-items:center;padding:5px 0;font-size:12px}
+.heat-row .nm{color:#cfd9d4;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heat-row .bar{height:8px;background:#15201d;border-radius:4px;overflow:hidden;position:relative}
+.heat-row .bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2dd4a4,#5ae0b8);border-radius:4px}
+.heat-row .bar i.warn{background:linear-gradient(90deg,#f5b941,#f5c661)}
+.heat-row .bar i.bad{background:linear-gradient(90deg,#ff7a6b,#ff9a8b)}
+.heat-row .pct{font-variant-numeric:tabular-nums;color:#fff;font-weight:700;text-align:right;font-size:11px}
+.heat-row.at-risk .nm::before{content:"⚠";color:#f5b941;margin-right:5px}
+
+/* messages */
+.msg{padding:12px 14px;border-bottom:1px solid #15201d;display:flex;gap:10px;cursor:pointer}
+.msg:hover{background:#0f1d19}
+.msg:last-child{border-bottom:0}
+.msg .av{width:28px;height:28px;border-radius:50%;background:#1a2622;color:#cfd9d4;display:grid;place-items:center;font-size:10px;font-weight:700;flex-shrink:0}
+.msg .av.student{background:#2dd4a420;color:#2dd4a4}
+.msg strong{font-size:12.5px;color:#fff;display:block}
+.msg .preview{font-size:12px;color:#7a8e87;margin-top:2px;line-height:1.4}
+.msg .when{font-size:10px;color:#5c766e;margin-left:auto;flex-shrink:0}
+.msg .unread .preview{color:#cfd9d4}
+.msg.unread{background:#0e1a17}
+.msg.unread strong::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#2dd4a4;margin-left:6px;vertical-align:middle}
+
+@media (max-width:1100px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .work{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mark">N</span> Northstar</div>
+    <nav class="nav">
+      <small>Workspace</small>
+      <a class="active" href="#">Overview <span class="num">14</span></a>
+      <a href="#">Grading queue <span class="num">12</span></a>
+      <a href="#">Sections <span class="num">3</span></a>
+      <a href="#">Roster</a>
+      <a href="#">Curriculum</a>
+      <small>Advising</small>
+      <a href="#">Advisees <span class="num">9</span></a>
+      <a href="#">Office hours</a>
+      <small>Inbox</small>
+      <a href="#">Messages <span class="num">7</span></a>
+    </nav>
+    <div class="profile">
+      <div class="avatar">LP</div>
+      <div><strong style="font-size:12px;color:#fff">Dr. Lena Park</strong><small>Faculty · CS</small></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="bar">
+      <div>
+        <div class="crumb">Faculty · Computer Science</div>
+        <h1>Command</h1>
+      </div>
+      <div class="sub">Thursday, Aug 27 · 10:14</div>
+      <div class="spacer"></div>
+      <span class="kbd">⌘K</span>
+      <span class="kbd">G then G</span>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="kpis">
+      <div class="kpi alert">
+        <div class="lbl">Overdue grading</div>
+        <div class="val">42<span class="unit">subs</span></div>
+        <div class="delta neg">CS 110 PS3 · 2d late</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Due this week</div>
+        <div class="val">71<span class="unit">subs</span></div>
+        <div class="delta">+18 vs last week</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Students at risk</div>
+        <div class="val">7</div>
+        <div class="delta neg">+2 this week</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Avg section grade</div>
+        <div class="val">B+</div>
+        <div class="delta">82.4%</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Office hours booked</div>
+        <div class="val">5<span class="unit">/8</span></div>
+        <div class="delta">3 open slots</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Unread messages</div>
+        <div class="val">7</div>
+        <div class="delta">3 from students</div>
+      </div>
+    </div>
+
+    <div class="work">
+      <!-- Left: queue -->
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Action queue</h3>
+          <span class="tab"><button class="on">All (14)</button><button>Grading (12)</button><button>Advising (2)</button></span>
+          <span class="act">Filter</span>
+        </div>
+        <table class="queue">
+          <thead><tr>
+            <th>Item</th><th>Course</th><th>Due</th><th style="text-align:right">Count</th><th></th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="pri hi"></span><strong>Problem set 3</strong><div class="meta">Variables & scope</div></td>
+              <td><span class="course">CS 110</span><div class="meta">Section 01</div></td>
+              <td class="due over">Yesterday</td>
+              <td class="count">42</td>
+              <td><button class="primary">Grade →</button></td>
+            </tr>
+            <tr>
+              <td><span class="pri mid"></span><strong>Lab 4 write-up</strong><div class="meta">Binary search trees</div></td>
+              <td><span class="course">CS 210</span><div class="meta">Section 02</div></td>
+              <td class="due">Tomorrow</td>
+              <td class="count">36</td>
+              <td><button class="primary">Grade →</button></td>
+            </tr>
+            <tr>
+              <td><span class="pri mid"></span><strong>Quiz 2 attempts</strong><div class="meta">Graph traversal</div></td>
+              <td><span class="course">CS 340</span><div class="meta">Section 01</div></td>
+              <td class="due">Sun, Aug 30</td>
+              <td class="count">23</td>
+              <td><button>Open</button></td>
+            </tr>
+            <tr>
+              <td><span class="pri low"></span><strong>Midterm grade roster</strong><div class="meta">Submit to registrar</div></td>
+              <td><span class="course">REG</span><div class="meta">All sections</div></td>
+              <td class="due">Sep 12</td>
+              <td class="count">108</td>
+              <td><button>Open</button></td>
+            </tr>
+            <tr>
+              <td><span class="pri hi"></span><strong>Advising form</strong><div class="meta">A. Mensah — course plan</div></td>
+              <td><span class="course">ADVIS</span><div class="meta">Junior · CS major</div></td>
+              <td class="due over">3d late</td>
+              <td class="count">1</td>
+              <td><button>Review →</button></td>
+            </tr>
+            <tr>
+              <td><span class="pri mid"></span><strong>Office hours signup</strong><div class="meta">Auto-released next week</div></td>
+              <td><span class="course">CS 110</span><div class="meta">Tue slots</div></td>
+              <td class="due">Mon</td>
+              <td class="count">—</td>
+              <td><button>Edit</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Right column -->
+      <div class="stack">
+        <!-- Heat -->
+        <section class="panel">
+          <div class="panel-head">
+            <h3>CS 110 — at a glance</h3>
+            <span class="act">Roster</span>
+          </div>
+          <div class="heat">
+            <div class="heat-row"><span class="nm">Mensah, A.</span><span class="bar"><i style="width:42%"></i></span><span class="pct">42%</span></div>
+            <div class="heat-row at-risk"><span class="nm">Okafor, A.</span><span class="bar"><i class="bad" style="width:51%"></i></span><span class="pct">51%</span></div>
+            <div class="heat-row"><span class="nm">Patel, R.</span><span class="bar"><i style="width:88%"></i></span><span class="pct">88%</span></div>
+            <div class="heat-row at-risk"><span class="nm">Ruiz, M.</span><span class="bar"><i class="warn" style="width:58%"></i></span><span class="pct">58%</span></div>
+            <div class="heat-row"><span class="nm">Tan, S.</span><span class="bar"><i style="width:94%"></i></span><span class="pct">94%</span></div>
+            <div class="heat-row"><span class="nm">Yamada, K.</span><span class="bar"><i style="width:76%"></i></span><span class="pct">76%</span></div>
+            <div class="heat-row at-risk"><span class="nm">Diallo, F.</span><span class="bar"><i class="bad" style="width:38%"></i></span><span class="pct">38%</span></div>
+            <div class="heat-row"><span class="nm">Bennett, J.</span><span class="bar"><i style="width:81%"></i></span><span class="pct">81%</span></div>
+          </div>
+        </section>
+
+        <!-- Messages -->
+        <section class="panel">
+          <div class="panel-head">
+            <h3>Inbox</h3>
+            <span class="act">Open all</span>
+          </div>
+          <div class="msg unread">
+            <div class="av student">AO</div>
+            <div style="flex:1;min-width:0"><strong>Amara Okafor</strong><div class="preview">Quick question about the recursion problem on PS3 — am I allowed to use helper functions?</div></div>
+            <span class="when">2m</span>
+          </div>
+          <div class="msg unread">
+            <div class="av student">MR</div>
+            <div style="flex:1;min-width:0"><strong>Mateo Ruiz</strong><div class="preview">I'll miss Friday's lab for a family thing — can I attend your Thursday section instead?</div></div>
+            <span class="when">14m</span>
+          </div>
+          <div class="msg">
+            <div class="av">JT</div>
+            <div style="flex:1;min-width:0"><strong>Dr. Janelle Torres</strong><div class="preview">Curriculum committee draft attached — would love your feedback by Tuesday.</div></div>
+            <span class="when">1h</span>
+          </div>
+          <div class="msg unread">
+            <div class="av student">FD</div>
+            <div style="flex:1;min-width:0"><strong>Femi Diallo</strong><div class="preview">Thank you for the extension, professor. I'll have the lab in by tonight.</div></div>
+            <span class="when">3h</span>
+          </div>
+          <div class="msg">
+            <div class="av">RG</div>
+            <div style="flex:1;min-width:0"><strong>Registrar</strong><div class="preview">Midterm grade roster opens Sep 5. Save your progress frequently.</div></div>
+            <span class="when">2d</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.panel-head .tab button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+  });
+});
+document.querySelectorAll('.msg').forEach(m=>{
+  m.addEventListener('click',()=>m.classList.remove('unread'));
+});
+</script>
+</body>
+</html>

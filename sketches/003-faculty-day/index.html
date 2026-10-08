@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Northstar — Faculty Day</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7f5;color:#17332d;font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.app{min-height:100vh;display:grid;grid-template-columns:240px 1fr}
+
+/* sidebar */
+.side{padding:26px 18px;background:#e3efe9;border-right:1px solid #d4e4dd;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.02em}
+.mark{width:32px;height:32px;border-radius:10px;background:#126b5b;color:#fff;display:grid;place-items:center;font-size:16px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav small{text-transform:uppercase;letter-spacing:.12em;color:#5c766e;font-size:10px;font-weight:750;padding:0 10px;margin:6px 0 4px}
+.nav a{padding:9px 10px;border-radius:9px;color:#23423b;display:flex;align-items:center;gap:10px;font-weight:550;font-size:14px}
+.nav a .dot{width:6px;height:6px;border-radius:50%;background:#126b5b;opacity:0;transition:.2s}
+.nav a.active{background:#fff;color:#126b5b;box-shadow:0 1px 0 #126b5b22}
+.nav a.active .dot{opacity:1}
+.nav a .pill{margin-left:auto;font-size:11px;background:#126b5b14;color:#126b5b;padding:2px 7px;border-radius:99px;font-weight:700}
+.profile{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:#fff;border:1px solid #d4e4dd}
+.avatar{width:34px;height:34px;border-radius:50%;background:#126b5b;color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+.profile small{display:block;color:#5c766e;font-size:11px}
+
+/* main */
+main{padding:30px 38px 60px;max-width:1180px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px}
+.greet h1{font-size:30px;letter-spacing:-.03em;margin:0 0 4px}
+.greet p{margin:0;color:#5c766e}
+.toolbar{display:flex;gap:8px;align-items:center}
+.chip{border:1px solid #d4e4dd;background:#fff;padding:8px 12px;border-radius:99px;font-size:13px;font-weight:600;color:#23423b;display:flex;align-items:center;gap:6px}
+.chip.on{background:#126b5b;color:#fff;border-color:#126b5b}
+.icon{width:14px;height:14px;display:inline-block}
+
+/* hero: today strip */
+.today{background:linear-gradient(135deg,#126b5b 0%,#0d594c 100%);color:#fff;border-radius:20px;padding:24px 28px;display:grid;grid-template-columns:1.1fr 1fr;gap:28px;margin-bottom:22px;box-shadow:0 14px 35px #0d594c2a}
+.today .when{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;font-weight:700}
+.today h2{font-size:24px;letter-spacing:-.02em;margin:6px 0 14px}
+.now-class{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:14px;border-radius:14px}
+.now-class .ring{width:46px;height:46px;border-radius:50%;background:#fff;color:#126b5b;display:grid;place-items:center;font-weight:800;font-size:15px;flex-shrink:0}
+.now-class strong{display:block;font-size:15px}
+.now-class span{font-size:12px;opacity:.75}
+.up-next{display:flex;flex-direction:column;gap:10px}
+.up-next h4{margin:0 0 2px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.7;font-weight:700}
+.next-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.14)}
+.next-row:first-of-type{border-top:0;padding-top:0}
+.next-time{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;min-width:62px}
+.next-row small{display:block;opacity:.72;font-size:12px;margin-top:1px}
+.next-row .tag{margin-left:auto;font-size:11px;background:rgba(255,255,255,.16);padding:3px 8px;border-radius:99px;font-weight:600}
+
+/* timeline grid */
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 12px}
+.section-head h3{margin:0;font-size:18px;letter-spacing:-.02em}
+.section-head a{color:#126b5b;font-weight:600;font-size:13px}
+
+.timeline{display:grid;grid-template-columns:64px 1fr;gap:0;background:#fff;border:1px solid #d4e4dd;border-radius:18px;overflow:hidden}
+.hour{font-size:11px;color:#5c766e;font-variant-numeric:tabular-nums;padding:18px 12px;border-top:1px solid #f0f4f1;text-align:right;font-weight:600}
+.hour:first-child{border-top:0}
+.slot{border-top:1px solid #f0f4f1;padding:14px 18px;display:flex;align-items:center;gap:14px;min-height:64px}
+.slot:first-child{border-top:0}
+.slot.class{background:linear-gradient(90deg,#eaf6f1 0,transparent 60%);cursor:pointer}
+.slot.class:hover{background:linear-gradient(90deg,#d8eee5 0,transparent 70%)}
+.slot.office{background:#fbf6e8}
+.slot.office:hover{background:#f6efd9}
+.slot.free{color:#9aa9a3;font-style:italic}
+.slot .title{font-weight:650;font-size:14px}
+.slot .meta{font-size:12px;color:#5c766e;margin-top:2px}
+.slot .where{margin-left:auto;font-size:12px;color:#5c766e;background:#fff;border:1px solid #d4e4dd;padding:4px 9px;border-radius:8px;font-weight:600}
+.slot.class .where{background:#126b5b;color:#fff;border-color:#126b5b}
+.slot .swatch{width:4px;align-self:stretch;border-radius:4px;background:#126b5b;margin-left:-18px;margin-right:14px}
+.slot.office .swatch{background:#b88f1a}
+
+/* lower grid */
+.lower{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;margin-top:24px}
+.card{background:#fff;border:1px solid #d4e4dd;border-radius:18px;padding:22px}
+.card h3{margin:0 0 14px;font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.card h3 .count{margin-left:auto;font-size:12px;background:#126b5b14;color:#126b5b;padding:3px 9px;border-radius:99px;font-weight:700}
+
+/* to-grade list */
+.grade-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid #f0f4f1}
+.grade-row:first-of-type{border-top:0}
+.grade-row .dot{width:8px;height:8px;border-radius:50%;background:#b88f1a}
+.grade-row.urgent .dot{background:#c0392b}
+.grade-row .title{font-weight:600;font-size:14px}
+.grade-row small{display:block;color:#5c766e;font-size:12px;margin-top:1px}
+.grade-row .due{margin-left:auto;font-size:12px;color:#5c766e;text-align:right}
+.grade-row .due strong{display:block;color:#17332d;font-size:13px}
+.grade-row button{border:0;background:#126b5b;color:#fff;padding:7px 12px;border-radius:8px;font-weight:650;font-size:12px;margin-left:8px}
+
+/* announcements */
+.note{padding:12px 14px;border-radius:12px;background:#f4f7f5;margin-bottom:10px;border-left:3px solid #126b5b}
+.note:last-child{margin-bottom:0}
+.note strong{display:block;font-size:13px;margin-bottom:2px}
+.note span{font-size:12px;color:#5c766e}
+.note.dept{border-left-color:#b88f1a;background:#fbf6e8}
+
+@media (max-width:920px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto}
+  .today{grid-template-columns:1fr}
+  .lower{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="side">
+    <div class="brand"><span class="mark">N</span> Northstar</div>
+    <nav class="nav">
+      <small>Teaching</small>
+      <a class="active" href="#"><span class="dot"></span> Today</a>
+      <a href="#">Schedule <span class="pill">2</span></a>
+      <a href="#">Sections <span class="pill">3</span></a>
+      <a href="#">Assignments</a>
+      <a href="#">Gradebook</a>
+      <small>Community</small>
+      <a href="#">Students</a>
+      <a href="#">Advisees</a>
+      <a href="#">Messages</a>
+    </nav>
+    <div class="profile">
+      <div class="avatar">LP</div>
+      <div><strong style="font-size:13px">Dr. Lena Park</strong><small>Computer Science</small></div>
+    </div>
+  </aside>
+
+  <main>
+    <!-- Greeting -->
+    <div class="head">
+      <div class="greet">
+        <h1>Good morning, Lena.</h1>
+        <p>Thursday, Aug 27 · Week 4 of semester · 3 classes today</p>
+      </div>
+      <div class="toolbar">
+        <button class="chip on">This week</button>
+        <button class="chip">Next week</button>
+        <button class="chip">+ Office hours</button>
+      </div>
+    </div>
+
+    <!-- Today hero -->
+    <section class="today">
+      <div>
+        <div class="when">Right now · 10:14 AM</div>
+        <h2>CS 210 · Data Structures in session</h2>
+        <div class="now-class">
+          <div class="ring">42</div>
+          <div>
+            <strong>Lecture · Binary search trees</strong>
+            <span>Ends 11:05 · Packard Hall 204</span>
+          </div>
+          <button style="margin-left:auto;border:0;background:#fff;color:#126b5b;padding:9px 14px;border-radius:10px;font-weight:700">Open room</button>
+        </div>
+      </div>
+      <div class="up-next">
+        <h4>Up next</h4>
+        <div class="next-row">
+          <div class="next-time">11:15<small>AM</small></div>
+          <div>
+            <strong>Office hours</strong>
+            <small>Drop-in · 1 student waiting</small>
+          </div>
+          <span class="tag">Drop-in</span>
+        </div>
+        <div class="next-row">
+          <div class="next-time">1:00<small>PM</small></div>
+          <div>
+            <strong>CS 340 · Algorithms</strong>
+            <small>Lab · Graph traversal</small>
+          </div>
+          <span class="tag">Lab</span>
+        </div>
+        <div class="next-row">
+          <div class="next-time">3:30<small>PM</small></div>
+          <div>
+            <strong>Department meeting</strong>
+            <small>Curriculum review</small>
+          </div>
+          <span class="tag">Meeting</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <div class="section-head">
+      <h3>Today's flow</h3>
+      <a href="#">View full week →</a>
+    </div>
+    <div class="timeline">
+      <div class="hour">8 AM</div>
+      <div class="slot free">Quiet block · prep & coffee</div>
+      <div class="hour">9 AM</div>
+      <div class="slot class">
+        <div class="swatch"></div>
+        <div><div class="title">CS 110 · Intro to Programming</div><div class="meta">42 students · Lecture · Variables & scope</div></div>
+        <span class="where">PH 204</span>
+      </div>
+      <div class="hour">10 AM</div>
+      <div class="slot class" style="background:linear-gradient(90deg,#cde8df 0,transparent 60%)">
+        <div class="swatch"></div>
+        <div><div class="title">CS 210 · Data Structures <span style="font-size:11px;background:#126b5b;color:#fff;padding:2px 7px;border-radius:99px;margin-left:6px;font-weight:700">LIVE</span></div><div class="meta">38 students · Lecture · Binary search trees</div></div>
+        <span class="where">PH 204</span>
+      </div>
+      <div class="hour">11 AM</div>
+      <div class="slot office">
+        <div class="swatch"></div>
+        <div><div class="title">Office hours</div><div class="meta">Drop-in · Packard 312</div></div>
+        <span class="where">Office</span>
+      </div>
+      <div class="hour">12 PM</div>
+      <div class="slot free">Lunch</div>
+      <div class="hour">1 PM</div>
+      <div class="slot class">
+        <div class="swatch"></div>
+        <div><div class="title">CS 340 · Algorithms · Lab</div><div class="meta">28 students · Lab · Graph traversal</div></div>
+        <span class="where">CS Lab B</span>
+      </div>
+      <div class="hour">2 PM</div>
+      <div class="slot free">Grading block</div>
+      <div class="hour">3 PM</div>
+      <div class="slot office">
+        <div class="swatch"></div>
+        <div><div class="title">Department meeting</div><div class="meta">Curriculum review · all CS faculty</div></div>
+        <span class="where">Conf Rm 2</span>
+      </div>
+      <div class="hour">4 PM</div>
+      <div class="slot free">Wrap up · respond to student email</div>
+    </div>
+
+    <!-- Lower cards -->
+    <div class="lower">
+      <div class="card">
+        <h3>To grade <span class="count">12 new</span></h3>
+        <div class="grade-row urgent">
+          <span class="dot"></span>
+          <div><div class="title">CS 110 · Problem set 3</div><small>Variables & scope · due yesterday</small></div>
+          <div class="due"><strong>42</strong>submissions</div>
+          <button>Grade</button>
+        </div>
+        <div class="grade-row">
+          <span class="dot"></span>
+          <div><div class="title">CS 210 · Lab 4 write-up</div><small>Binary trees · due tomorrow</small></div>
+          <div class="due"><strong>36</strong>submissions</div>
+          <button>Grade</button>
+        </div>
+        <div class="grade-row">
+          <span class="dot"></span>
+          <div><div class="title">CS 340 · Quiz 2 attempts</div><small>Graph traversal · open until Sun</small></div>
+          <div class="due"><strong>23</strong>submissions</div>
+          <button>Grade</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Notes & announcements</h3>
+        <div class="note">
+          <strong>Midterm grades due Sep 12</strong>
+          <span>Registrar · posted 2 days ago</span>
+        </div>
+        <div class="note dept">
+          <strong>CS open house · volunteers needed</strong>
+          <span>Department · Sep 18, 4-6 PM</span>
+        </div>
+        <div class="note">
+          <strong>New TA joining CS 110 next week</strong>
+          <span>You · 1 hour ago</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// gentle interactive polish: tap a timeline row to "open" it
+document.querySelectorAll('.slot.class').forEach(s=>{
+  s.addEventListener('click',()=>{
+    document.querySelectorAll('.slot.class').forEach(x=>x.style.outline='');
+    s.style.outline='2px solid #126b5b55';
+  });
+});
+// chip toggle
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
